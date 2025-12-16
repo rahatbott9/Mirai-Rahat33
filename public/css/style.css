@@ -1,0 +1,26 @@
+
+/* Minimal Dark Premium Glass styling */
+:root{
+  --bg:#0b0f14; --glass: rgba(255,255,255,0.04);
+  --accent: rgba(63, 198, 255, 0.9);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+body{background:radial-gradient(ellipse at top left, rgba(63,198,255,0.04), transparent 20%), var(--bg);color:#dfe8f0}
+.container{max-width:900px;margin:32px auto;padding:24px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.topbar h1{font-size:20px;letter-spacing:0.6px}
+.status{padding:8px 12px;border-radius:999px;font-weight:600}
+.status.off{background:rgba(255,40,40,0.12);color:#ff6b6b}
+.status.on{background:rgba(0,200,140,0.12);color:#7effc7}
+.card.glass{backdrop-filter: blur(8px) saturate(120%);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.05);padding:20px;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,0.6)}
+label{display:block;margin-top:12px;font-size:13px;opacity:0.9}
+input,textarea{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+.controls{display:flex;gap:12px;margin-top:16px}
+.btn{padding:10px 16px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+.btn.primary{background:linear-gradient(90deg,var(--accent), #b57cff);box-shadow:0 6px 18px rgba(86,63,255,0.12);color:#041226}
+.toast{margin-top:12px;min-height:28px}
+.footer{opacity:0.6;margin-top:18px;font-size:13px}
+
+/* responsive */
+@media(max-width:520px){.container{padding:12px;margin:12px}}
