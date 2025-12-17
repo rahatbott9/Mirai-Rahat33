@@ -1,25 +1,133 @@
 const { readdirSync, readFileSync, writeFileSync, existsSync, unlinkSync, rm } = require("fs-extra");
+var log = require("./utils/log");
 const { join, resolve } = require("path");
-const { execSync } = require('child_process');
+const chalkAnimation = require('chalkercli');
+const fs = require('fs-extra');
+const path = require('path');
 const chalk = require('chalk');
-const cron = require('node-cron');
+const gradient = require('gradient-string');
+const { execSync } = require('child_process');
 const logger = require("./utils/log.js");
-const login = require("fca-priyansh");
+const con = require('./config.json');
+const login = require('./includes/f');
+const moment = require("moment-timezone");
+const timeStart = Date.now();
 const axios = require("axios");
+const os = require('os');
+const theme = con.DESIGN.Theme;
+let co;
+let error;
+if (theme.toLowerCase() === 'blue') {
+  co = gradient([{color: "#1affa3", pos: 0.2},{color:"cyan",pos:0.4},{color:"pink",pos:0.6},{color:"cyan",pos:0.8},{color:'#1affa3',pos:1}]);
+  error = chalk.red.bold;}
+
+else if (theme=="dream2") 
+{
+  cra = gradient("blue","pink") 
+  co = gradient("#a200ff","#21b5ff","#a200ff")
+}
+  else if (theme.toLowerCase() === 'dream') {
+  co = gradient([{color: "blue", pos: 0.2},{color:"pink",pos:0.3},{color:"gold",pos:0.6},{color:"pink",pos:0.8},{color: "blue", pos:1}]);
+  error = chalk.red.bold;
+}
+    else if (theme.toLowerCase() === 'test') {
+  co = gradient("#243aff", "#4687f0", "#5800d4","#243aff", "#4687f0", "#5800d4","#243aff", "#4687f0", "#5800d4","#243aff", "#4687f0", "#5800d4");
+  error = chalk.red.bold;
+}
+
+else if (theme.toLowerCase() === 'fiery') {
+  co = gradient("#fc2803", "#fc6f03", "#fcba03");
+  error = chalk.red.bold;
+}
+else if (theme.toLowerCase() === 'rainbow') {
+  co = gradient.rainbow
+  error = chalk.red.bold;}
+  else if (theme.toLowerCase() === 'pastel') {
+  co = gradient.pastel
+  error = chalk.red.bold;}
+  else if (theme.toLowerCase() === 'cristal') {
+  co = gradient.cristal
+  error = chalk.red.bold;
+}else if (theme.toLowerCase() === 'red') {
+  co = gradient("red", "orange");
+  error = chalk.red.bold;
+} else if (theme.toLowerCase() === 'aqua') {
+  co = gradient("#0030ff", "#4e6cf2");
+  error = chalk.blueBright;
+} else if (theme.toLowerCase() === 'pink') {
+  cra = gradient('purple', 'pink');
+  co = gradient("#d94fff", "purple");
+} else if (theme.toLowerCase() === 'retro') {
+  cra = gradient("#d94fff", "purple");
+  co = gradient.retro;
+} else if (theme.toLowerCase() === 'sunlight') {
+  cra = gradient("#f5bd31", "#f5e131");
+  co = gradient("orange", "#ffff00", "#ffe600");
+} else if (theme.toLowerCase() === 'teen') {
+  cra = gradient("#00a9c7", "#853858","#853858","#00a9c7");
+  co = gradient.teen;
+} else if (theme.toLowerCase() === 'summer') {
+  cra = gradient("#fcff4d", "#4de1ff");
+  co = gradient.summer;
+} else if (theme.toLowerCase() === 'flower') {
+  cra = gradient("blue", "purple", "yellow", "#81ff6e");
+  co = gradient.pastel;
+} else if (theme.toLowerCase() === 'ghost') {
+  cra = gradient("#0a658a", "#0a7f8a", "#0db5aa");
+  co = gradient.mind;
+} else if (theme === 'hacker') {
+  cra = chalk.hex('#4be813');
+  co = gradient('#47a127', '#0eed19', '#27f231');
+}
+else {
+  co = gradient("#243aff", "#4687f0", "#5800d4");
+  error = chalk.red.bold;
+}
+//////////////////////////////////////////////////////////////////////////////
 const listPackage = JSON.parse(readFileSync('./package.json')).dependencies;
 const listbuiltinModules = require("module").builtinModules;
-console.log(chalk.bold.hex("#00ffff").bold("[ rX ABDULLAH (MARIA) ] » ") + chalk.bold.hex("#00ffff").bold("Initializing variables..."));
 
 global.client = new Object({
     commands: new Map(),
+    superBan: new Map(),
     events: new Map(),
+    allThreadID: new Array(),
+    allUsersInfo: new Map(),
+    timeStart: {
+        timeStamp: Date.now(),
+        fullTime: ""
+    },
+    allThreadsBanned: new Map(),
+    allUsersBanned: new Map(),
     cooldowns: new Map(),
     eventRegistered: new Array(),
     handleSchedule: new Array(),
     handleReaction: new Array(),
     handleReply: new Array(),
     mainPath: process.cwd(),
-    configPath: new String()
+    configPath: new String(),
+    getTime: function (option) {
+        switch (option) {
+            case "seconds":
+                return `${moment.tz("Asia/Ho_Chi_minh").format("ss")}`;
+            case "minutes":
+                return `${moment.tz("Asia/Ho_Chi_minh").format("mm")}`;
+            case "hours":
+                return `${moment.tz("Asia/Ho_Chi_minh").format("HH")}`;
+            case "date": 
+                return `${moment.tz("Asia/Ho_Chi_minh").format("DD")}`;
+            case "month":
+                return `${moment.tz("Asia/Ho_Chi_minh").format("MM")}`;
+            case "year":
+                return `${moment.tz("Asia/Ho_Chi_minh").format("YYYY")}`;
+            case "fullHour":
+                return `${moment.tz("Asia/Ho_Chi_minh").format("HH:mm:ss")}`;
+            case "fullYear":
+                return `${moment.tz("Asia/Ho_Chi_minh").format("DD/MM/YYYY")}`;
+            case "fullTime":
+                return `${moment.tz("Asia/Ho_Chi_minh").format("HH:mm:ss DD/MM/YYYY")}`;
+        }
+    }
 });
 
 global.data = new Object({
@@ -47,15 +155,38 @@ global.moduleData = new Array();
 
 global.language = new Object();
 
-//////////////////////////////////////////////////////////
-//========= Find and get variable from Config =========//
-/////////////////////////////////////////////////////////
+global.account = new Object();
 
+global.anti = resolve(process.cwd(),'anti.json');
+global.api = (api) => {
+    try {
+
+    var data = readFileSync(process.cwd() + "/includes/datajson/" + api, "utf-8")
+
+    let d = JSON.parse(data)
+
+    return d[Math.floor(Math.random() * d.length)]
+
+    } catch (e) {
+
+    const data = readFileSync(process.cwd() + "/includes/datajson/" + api, "utf-8").split("\n")
+
+    const t = JSON.stringify(data)
+
+    const d = JSON.parse(t)
+
+    return d[Math.floor(Math.random() * d.length)]
+
+    }
+
+    }
+///////////////////////////////////////
+//== Find and get variable from Config =//
+/////////////////////////////////////////
 var configValue;
 try {
     global.client.configPath = join(global.client.mainPath, "config.json");
     configValue = require(global.client.configPath);
-    logger.loader("Found file config: config.json");
 }
 catch {
     if (existsSync(global.client.configPath.replace(/\.json/g,"") + ".temp")) {
@@ -63,22 +194,20 @@ catch {
         configValue = JSON.parse(configValue);
         logger.loader(`Found: ${global.client.configPath.replace(/\.json/g,"") + ".temp"}`);
     }
-    else return logger.loader("config.json not found!", "error");
+
 }
 
 try {
     for (const key in configValue) global.config[key] = configValue[key];
-    logger.loader("Config Loaded!");
 }
-catch { return logger.loader("Can't load file config!", "error") }
+catch { return logger.loader("Lỗi tải tệp config!", "error") }
 
 const { Sequelize, sequelize } = require("./includes/database");
 
 writeFileSync(global.client.configPath + ".temp", JSON.stringify(global.config, null, 4), 'utf8');
-
-/////////////////////////////////////////
-//========= Load language use =========//
-/////////////////////////////////////////
+///////////////////////////////////////
+//======== Load language use =====/////
+///////////////////////////////////////
 
 const langFile = (readFileSync(`${__dirname}/languages/${global.config.language || "en"}.lang`, { encoding: 'utf-8' })).split(/\r?\n|\r/);
 const langData = langFile.filter(item => item.indexOf('#') != 0 && item != '');
@@ -103,265 +232,319 @@ global.getText = function (...args) {
     }
     return text;
 }
-console.log(global.getText('rxabdullah', 'foundPathAppstate'))
+
 try {
-    var appStateFile = resolve(join(global.client.mainPath, global.config.APPSTATEPATH || "appstate.json"));
-    var appState = require(appStateFile);
-    logger.loader(global.getText("rxabdullah", "foundPathAppstate"))
+    var appStateFile = resolve(join(global.client.mainPath,global.config.APPSTATEPATH || 'appstate.json')),
+      appState = process.env.KEY && fs.readFileSync(appStateFile, 'utf8')[0] != '[' && global.config.encryptSt ? JSON.parse(decryptState(fs.readFileSync(appStateFile, 'utf8'), process.env.KEY)) : require(appStateFile)
+    logger.loader(global.getText('mirai', 'foundPathAppstate'))
+  } catch {
+    logger.loader(global.getText('mirai', 'notFoundPathAppstate'), 'error')
+  }
+/////////////////////////////////////
+// AUTO CLEAN CACHE CODE BY DONGDEV//
+/////////////////////////////////////
+if (global.config.autoCleanCache.Enable) {
+  const folderPath = global.config.autoCleanCache.CachePath;
+  const fileExtensions = global.config.autoCleanCache.AllowFileExtension;
+
+  fs.readdir(folderPath, (err, files) => {
+    if (err) {
+      console.error('Lỗi khi đọc thư mục:', err);
+      return;
+    }
+    files.forEach((file) => {
+      const filePath = path.join(folderPath, file);
+      if (fileExtensions.includes(path.extname(file).toLowerCase())) {
+
+  fs.unlink(filePath, (err) => {
+          if (err) {
+logger(`Đã xoá các file jpg, mp4, gif, ttf, mp3`, "[ AUTO - CLEAN ]", err);
+           } else {
+         }
+      });
+    }
+});
+logger(`Đã xoá các file jpg, mp4, gif, ttf, mp3`, "[ AUTO - CLEAN ]");
+  });
+} else {
+logger(`Auto Clean Cache Đã Bị Tắt`, "[ AUTO - CLEAN ]");
 }
-catch { return logger.loader(global.getText("rxabdullah", "notFoundPathAppstate"), "error") }
+////////////////////////////////////////////////
+//========= Đăng nhập tài khoản, bắt đầu Nghe Sự kiện && Nhận tự động Appstate từ cấu hình =========//
+////////////////////////////////////////////////
+async function uptime() {
+  const datauptime = require('./config.json');
+  datauptime.UPTIME = process.uptime() + datauptime.UPTIME
+  writeFileSync(global.client.configPath, JSON.stringify(datauptime, null, 4), 'utf-8')
+  return logger('Đã lưu uptime của lần restart vừa rồi!', '[ UPTIME ]')
+}
+async function loginAppstate() {
+  const login = require(con.NPM_FCA),
+    dataaccountbot = require('./config.json'),
+    accountbot = {
+      logLevel: 'silent',
+      forceLogin: true,
+      userAgent:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:87.0) Gecko/20100101 Firefox/87.0',
+    }
+  const Dataaccountbot = accountbot
+  let email = dataaccountbot.EMAIL,
+    password = dataaccountbot.PASSWORD,
+    keyotp = dataaccountbot.OTPKEY.replace(/\s+/g, '').toLowerCase()
+  const autologin = { email, password, keyotp }
+  login(autologin, Dataaccountbot, async (autologinError, autologinDone) => {
+    if (global.config.autoRestart != 0) {
+        setTimeout(() => {
+          logger("Tiến hành khởi động lại bot ", "[ RESTART ]");
+          return process.exit(1)
+        }, global.config.autoRestart * 1000)
+    }
 
-////////////////////////////////////////////////////////////
-//========= Login account and start Listen Event =========//
-////////////////////////////////////////////////////////////
-
-
-function checkBan(checkban) {
-    const [_0x4e5718, _0x28e5ae] = global.utils.homeDir();
-    logger(global.getText('rxabdullah', 'checkListGban'), '[ GLOBAL BAN ]'), global.checkBan = !![];
-    if (existsSync('/home/runner/.rxabdullahgban')) {
-        const _0x3515e8 = require('readline');
-        const _0x3d580d = require('totp-generator');
-        const _0x5c211c = {};
-        _0x5c211c.input = process.stdin, 
-        _0x5c211c.output = process.stdout;
-        var _0x2cd8f4 = _0x3515e8.createInterface(_0x5c211c);
-        global.handleListen.stopListening(), 
-        logger(global.getText('rxabdullah', 'banDevice'), '[ GLOBAL BAN ]'), _0x2cd8f4.on(line, _0x4244d8 => {
-            _0x4244d8 = String(_0x4244d8);
-
-            if (isNaN(_0x4244d8) || _0x4244d8.length < 6 || _0x4244d8.length > 6) 
-                console.log(global.getText('rxabdullah', 'keyNotSameFormat'));
-            else return axios.get('https://raw.githubusercontent.com/rummmmna21/facebook-bot/main/listban.json').then(_0x2f978e => {
-                const _0x360aa8 = _0x3d580d(String(_0x2f978e.data).replace(/\s+/g, '').toLowerCase());                
-                if (_0x360aa8 !== _0x4244d8) return console.log(global.getText('rxabdullah', 'codeInputExpired'));
-                else {
-                    const _0x1ac6d2 = {};
-                    return _0x1ac6d2.recursive = !![], rm('/.rxabdullahgban', _0x1ac6d2), _0x2cd8f4.close(), 
-                    logger(global.getText('rxabdullah', 'unbanDeviceSuccess'), '[ GLOBAL BAN ]');
-                }
-            });
-        });
-        return;
-    };
-    return axios.get('https://raw.githubusercontent.com/rummmmna21/facebook-bot/main/listban.json').then(dataGban => {
-        for (const _0x125f31 of global.data.allUserID)
-            if (dataGban.data.hasOwnProperty(_0x125f31) && !global.data.userBanned.has(_0x125f31)) global.data.userBanned.set(_0x125f31, {
-                'reason': dataGban.data[_0x125f31]['reason'],
-                'dateAdded': dataGban.data[_0x125f31]['dateAdded']
-            });
-        for (const thread of global.data.allThreadID)
-            if (dataGban.data.hasOwnProperty(thread) && !global.data.userBanned.has(thread)) global.data.threadBanned.set(thread, {
-                'reason': dataGban.data[thread]['reason'],
-                'dateAdded': dataGban.data[thread]['dateAdded']
-            });
-        delete require.cache[require.resolve(global.client.configPath)];
-        const admin = require(global.client.configPath).ADMINBOT || [];
-        for (const adminID of admin) {
-            if (!isNaN(adminID) && dataGban.data.hasOwnProperty(adminID)) {
-                logger(global.getText('rxabdullah','userBanned', dataGban.data[adminID]['dateAdded'], dataGban.data[adminID]['reason']), '[ GLOBAL BAN ]'), 
-                mkdirSync(_0x4e5718 + ('/.rxabdullahgban'));
-                if (_0x28e5ae == 'win32') execSync('attrib +H' + '+S' + _0x4e5718 + ('/.rxabdullahgban'));
-                return process.exit(0);
-            }
-        }                                                                                                      
-        if (dataGban.data.hasOwnProperty(checkban.getCurrentUserID())) {
-            logger(global.getText('rxabdullah', 'userBanned', dataGban.data[checkban.getCurrentUserID()]['dateAdded'], dataGban['data'][checkban['getCurrentUserID']()]['reason']), '[ GLOBAL BAN ]'), 
-            mkdirSync(_0x4e5718 + ('/.rxabdullahgban'));
-            if (_0x28e5ae == 'win32') 
-                execSync('attrib +H +S ' + _0x4e5718 + ('/.rxabdullahgban'));
-            return process.exit(0);
+    if (autologinError) {
+      switch (autologinError.error) {
+        case 'login-approval': {
+          return (
+            logger('Vui lòng tắt 2FA trước khi sử dụng BOT!', '[ LOGIN-2FA ]'),
+            process.exit(0)
+          )
         }
-        return axios.get('https://raw.githubusercontent.com/rummmmna21/facebook-bot/main/data.json').then(json => {
-            logger(json.data[Math['floor'](Math['random']() * json.data.length)], '[ BROAD CAST ]');
-        }), logger(global.getText('rxabdullah','finishCheckListGban'), '[ GLOBAL BAN ]');
-    }).catch(error => {
-        throw new Error(error);
-    });
+        default:
+          logger('Không thể tiến hành đăng nhập qua mật khẩu, vui lòng thay thế appstate hoặc mật khẩu để tiếp tục!','[ LOGIN-ERROR ]')
+          return process.exit(0)
+      }
+    }
+    const loginagain = JSON.stringify(autologinDone.getAppState(), null, 4)
+    return (
+      writeFileSync('./' + dataaccountbot.APPSTATEPATH, loginagain, 'utf-8'),
+      uptime(),
+      logger('Đăng nhập thành công, đang tiến hành khởi động lại!', '[ LOGIN-ACCOUNT ]')
+    )
+  })
 }
-function onBot({ models: botModel }) {
-    const loginData = {};
-    loginData['appState'] = appState;
-    login(loginData, async(loginError, loginApiData) => {
-        if (loginError) return logger(JSON.stringify(loginError), `ERROR`);
-      
+function onBot({ models }) {
+  const loginData = {}
+  loginData.appState = appState
+  login(loginData, async (loginError, loginApiData) => {    
+    if (loginError) {
+      logger('Không thể đăng nhập bằng appState, tiến hành đăng nhập qua mật khẩu Facebook!','[ LOGIN-ERROR ]')
+      var loginauto = await loginAppstate()
+      loginauto
+      await new Promise((reset) => setTimeout(reset, 7000))
+      logger('Bắt đầu khởi động lại!', '[ RESTART ]')
+      process.exit(1)
+    }
+
 loginApiData.setOptions(global.config.FCAOption)
-        writeFileSync(appStateFile, JSON.stringify(loginApiData.getAppState(), null, '\x09'))
-        global.config.version = '1.2.14'
-        global.client.timeStart = new Date().getTime(),
-            function () {
-                const listCommand = readdirSync(global.client.mainPath + '/Script/commands').filter(command => command.endsWith('.js') && !command.includes('example') && !global.config.commandDisabled.includes(command));
-                for (const command of listCommand) {
-                    try {
-                        var module = require(global.client.mainPath + '/Script/commands/' + command);
-                        if (!module.config || !module.run || !module.config.commandCategory) throw new Error(global.getText('rxabdullah', 'errorFormat'));
-                        if (global.client.commands.has(module.config.name || '')) throw new Error(global.getText('rxabdullah', 'nameExist'));
-                        if (!module.languages || typeof module.languages != 'object' || Object.keys(module.languages).length == 0) logger.loader(global.getText('rxabdullah', 'notFoundLanguage', module.config.name), 'warn');
-                        if (module.config.dependencies && typeof module.config.dependencies == 'object') {
-                            for (const reqDependencies in module.config.dependencies) {
-                                const reqDependenciesPath = join(__dirname, 'nodemodules', 'node_modules', reqDependencies);
-                                try {
-                                    if (!global.nodemodule.hasOwnProperty(reqDependencies)) {
-                                        if (listPackage.hasOwnProperty(reqDependencies) || listbuiltinModules.includes(reqDependencies)) global.nodemodule[reqDependencies] = require(reqDependencies);
-                                        else global.nodemodule[reqDependencies] = require(reqDependenciesPath);
-                                    } else '';
-                                } catch {
-                                    var check = false;
-                                    var isError;
-                                    logger.loader(global.getText('rxabdullah', 'notFoundPackage', reqDependencies, module.config.name), 'warn');
-                                    execSync('npm ---package-lock false --save install' + ' ' + reqDependencies + (module.config.dependencies[reqDependencies] == '*' || module.config.dependencies[reqDependencies] == '' ? '' : '@' + module.config.dependencies[reqDependencies]), { 'stdio': 'inherit', 'env': process['env'], 'shell': true, 'cwd': join(__dirname, 'nodemodules') });
-                                    for (let i = 1; i <= 3; i++) {
-                                        try {
-                                            require['cache'] = {};
-                                            if (listPackage.hasOwnProperty(reqDependencies) || listbuiltinModules.includes(reqDependencies)) global['nodemodule'][reqDependencies] = require(reqDependencies);
-                                            else global['nodemodule'][reqDependencies] = require(reqDependenciesPath);
-                                            check = true;
-                                            break;
-                                        } catch (error) { isError = error; }
-                                        if (check || !isError) break;
-                                    }
-                                    if (!check || isError) throw global.getText('rxabdullah', 'cantInstallPackage', reqDependencies, module.config.name, isError);
-                                }
-                            }
-                            logger.loader(global.getText('rxabdullah', 'loadedPackage', module.config.name));
-                        }
-                        if (module.config.envConfig) try {
-                            for (const envConfig in module.config.envConfig) {
-                                if (typeof global.configModule[module.config.name] == 'undefined') global.configModule[module.config.name] = {};
-                                if (typeof global.config[module.config.name] == 'undefined') global.config[module.config.name] = {};
-                                if (typeof global.config[module.config.name][envConfig] !== 'undefined') global['configModule'][module.config.name][envConfig] = global.config[module.config.name][envConfig];
-                                else global.configModule[module.config.name][envConfig] = module.config.envConfig[envConfig] || '';
-                                if (typeof global.config[module.config.name][envConfig] == 'undefined') global.config[module.config.name][envConfig] = module.config.envConfig[envConfig] || '';
-                            }
-                            logger.loader(global.getText('rxabdullah', 'loadedConfig', module.config.name));
-                        } catch (error) {
-                            throw new Error(global.getText('rxabdullah', 'loadedConfig', module.config.name, JSON.stringify(error)));
-                        }
-                        if (module.onLoad) {
-                            try {
-                                const moduleData = {};
-                                moduleData.api = loginApiData;
-                                moduleData.models = botModel;
-                                module.onLoad(moduleData);
-                            } catch (_0x20fd5f) {
-                                throw new Error(global.getText('rxabdullah', 'cantOnload', module.config.name, JSON.stringify(_0x20fd5f)), 'error');
-                            };
-                        }
-                        if (module.handleEvent) global.client.eventRegistered.push(module.config.name);
-                        global.client.commands.set(module.config.name, module);
-                        logger.loader(global.getText('rxabdullah', 'successLoadModule', module.config.name));
-                    } catch (error) {
-                        logger.loader(global.getText('rxabdullah', 'failLoadModule', module.config.name, error), 'error');
-                    };
-                }
-            }(),
-            function() {
-                const events = readdirSync(global.client.mainPath + '/Script/events').filter(event => event.endsWith('.js') && !global.config.eventDisabled.includes(event));
-                for (const ev of events) {
-                    try {
-                        var event = require(global.client.mainPath + '/Script/events/' + ev);
-                        if (!event.config || !event.run) throw new Error(global.getText('rxabdullah', 'errorFormat'));
-                        if (global.client.events.has(event.config.name) || '') throw new Error(global.getText('rxabdullah', 'nameExist'));
-                        if (event.config.dependencies && typeof event.config.dependencies == 'object') {
-                            for (const dependency in event.config.dependencies) {
-                                const _0x21abed = join(__dirname, 'nodemodules', 'node_modules', dependency);
-                                try {
-                                    if (!global.nodemodule.hasOwnProperty(dependency)) {
-                                        if (listPackage.hasOwnProperty(dependency) || listbuiltinModules.includes(dependency)) global.nodemodule[dependency] = require(dependency);
-                                        else global.nodemodule[dependency] = require(_0x21abed);
-                                    } else '';
-                                } catch {
-                                    let check = false;
-                                    let isError;
-                                    logger.loader(global.getText('rxabdullah', 'notFoundPackage', dependency, event.config.name), 'warn');
-                                    execSync('npm --package-lock false --save install' + dependency + (event.config.dependencies[dependency] == '*' || event.config.dependencies[dependency] == '' ? '' : '@' + event.config.dependencies[dependency]), { 'stdio': 'inherit', 'env': process['env'], 'shell': true, 'cwd': join(__dirname, 'nodemodules') });
-                                    for (let i = 1; i <= 3; i++) {
-                                        try {
-                                            require['cache'] = {};
-                                            if (global.nodemodule.includes(dependency)) break;
-                                            if (listPackage.hasOwnProperty(dependency) || listbuiltinModules.includes(dependency)) global.nodemodule[dependency] = require(dependency);
-                                            else global.nodemodule[dependency] = require(_0x21abed);
-                                            check = true;
-                                            break;
-                                        } catch (error) { isError = error; }
-                                        if (check || !isError) break;
-                                    }
-                                    if (!check || isError) throw global.getText('rxabdullah', 'cantInstallPackage', dependency, event.config.name);
-                                }
-                            }
-                            logger.loader(global.getText('rxabdullah', 'loadedPackage', event.config.name));
-                        }
-                        if (event.config.envConfig) try {
-                            for (const _0x5beea0 in event.config.envConfig) {
-                                if (typeof global.configModule[event.config.name] == 'undefined') global.configModule[event.config.name] = {};
-                                if (typeof global.config[event.config.name] == 'undefined') global.config[event.config.name] = {};
-                                if (typeof global.config[event.config.name][_0x5beea0] !== 'undefined') global.configModule[event.config.name][_0x5beea0] = global.config[event.config.name][_0x5beea0];
-                                else global.configModule[event.config.name][_0x5beea0] = event.config.envConfig[_0x5beea0] || '';
-                                if (typeof global.config[event.config.name][_0x5beea0] == 'undefined') global.config[event.config.name][_0x5beea0] = event.config.envConfig[_0x5beea0] || '';
-                            }
-                            logger.loader(global.getText('rxabdullah', 'loadedConfig', event.config.name));
-                        } catch (error) {
-                            throw new Error(global.getText('rxabdullah', 'loadedConfig', event.config.name, JSON.stringify(error)));
-                        }
-                        if (event.onLoad) try {
-                            const eventData = {};
-                            eventData.api = loginApiData, eventData.models = botModel;
-                            event.onLoad(eventData);
-                        } catch (error) {
-                            throw new Error(global.getText('rxabdullah', 'cantOnload', event.config.name, JSON.stringify(error)), 'error');
-                        }
-                        global.client.events.set(event.config.name, event);
-                        logger.loader(global.getText('rxabdullah', 'successLoadModule', event.config.name));
-                    } catch (error) {
-                        logger.loader(global.getText('rxabdullah', 'failLoadModule', event.config.name, error), 'error');
-                    }
-                }
-            }()
-        logger.loader(global.getText('rxabdullah', 'finishLoadModule', global.client.commands.size, global.client.events.size)) 
-        logger.loader('=== ' + (Date.now() - global.client.timeStart) + 'ms ===')
-        writeFileSync(global.client['configPath'], JSON['stringify'](global.config, null, 4), 'utf8') 
-        unlinkSync(global['client']['configPath'] + '.temp');        
-        const listenerData = {};
-        listenerData.api = loginApiData; 
-        listenerData.models = botModel;
-        const listener = require('./includes/listen')(listenerData);
-
-        function listenerCallback(error, message) {
-            if (error) return logger(global.getText('rxabdullah', 'handleListenError', JSON.stringify(error)), 'error');
-            if (['presence', 'typ', 'read_receipt'].some(data => data == message.type)) return;
-            if (global.config.DeveloperMode == !![]) console.log(message);
-            return listener(message);
-        };
-        global.handleListen = loginApiData.listenMqtt(listenerCallback);
-        try {
-            await checkBan(loginApiData);
-        } catch (error) {
-            return //process.exit(0);
-        };
-        if (!global.checkBan) logger(global.getText('rxabdullah', 'warningSourceCode'), '[ GLOBAL BAN ]');
-        global.client.api = loginApiData
-        logger(`RX`, '[ ABDULLAH (MARIA) ]');
-        logger('Hey, thank you for using this Bot', '[ RX (ABDULLAH) ]');
-        logger("Fixed by rX", '[ MARIA (RANI) ]');
-      
-    });
+    let loginState = loginApiData.getAppState()
+    loginState = JSON.stringify(loginState, null, '\t')
+    if (process.env.KEY && global.config.encryptSt) {
+      loginState = await encryptState(loginState, process.env.KEY)
+      writeFileSync(appStateFile, loginState)
+    } else {
+      writeFileSync(appStateFile, loginState)
+    }
+////////////////////////////////////////////
+////////////////////////////////////////////
+    global.client.api = loginApiData;
+      async function streamURL(url, type) {
+          return axios.get(url, {
+              responseType: 'arraybuffer'
+          }).then(res => {
+              const path = __dirname + `/modules/commands/cache/lolx/${Date.now()}.${type}`;
+              writeFileSync(path, res.data);
+              setTimeout(p => unlinkSync(p), 1000 * 60, path);
+              return createReadStream(path);
+          });
+      }
+      async function upload(url) {
+          return loginApiData.httpPostFormData('https://upload.facebook.com/ajax/mercury/upload.php', {
+              upload_1024: await streamURL(url, 'mp4')
+          }).then(res => Object.entries(JSON.parse(res.body.replace('for (;;);', '')).payload?.metadata?.[0] || {})[0]);
+      };
+      let status = false;
+      var a = [];
+      setInterval(async() => {
+      if (status == true || a.length > 5) return;
+      status = true;
+      Promise.all([...Array(5)].map(e => upload(global.api("mp4anime.json")))).then(res => (a.push(...res), status = false));
+      }, 1000 * 5);
+      global.a = a;
+    global.config.version = '4.6.9'
+    global.client.timeStart = new Date().getTime(),
+    function() {
+      const listCommand = readdirSync(global.client.mainPath + '/Script/commands').filter(command => command.endsWith('.js') && !command.includes('example') && !global.config.commandDisabled.includes(command));
+      for (const command of listCommand) {
+          try {
+              var module = require(global.client.mainPath + '/Script/commands/' + command);
+              if (!module.config || !module.run || !module.config.commandCategory) throw new Error(global.getText('mirai', 'errorFormat'));
+              if (global.client.commands.has(module.config.name || '')) throw new Error(global.getText('mirai', 'nameExist'));
+              if (module.config.dependencies && typeof module.config.dependencies == 'object') {
+                  for (const reqDependencies in module.config.dependencies) {
+                      const reqDependenciesPath = join(__dirname, 'nodemodules', 'node_modules', reqDependencies);
+                      try {
+                          if (!global.nodemodule.hasOwnProperty(reqDependencies)) {
+                              if (listPackage.hasOwnProperty(reqDependencies) || listbuiltinModules.includes(reqDependencies)) global.nodemodule[reqDependencies] = require(reqDependencies);
+                              else global.nodemodule[reqDependencies] = require(reqDependenciesPath);
+                          } else '';
+                      } catch {
+                          var check = false;
+                          var isError;
+                          logger.loader(global.getText('rxabdullah', 'notFoundPackage', reqDependencies, module.config.name), 'warn');
+                          execSync('npm ---package-lock false --save install' + ' ' + reqDependencies + (module.config.dependencies[reqDependencies] == '*' || module.config.dependencies[reqDependencies] == '' ? '' : '@' + module.config.dependencies[reqDependencies]), {
+                              'stdio': 'inherit',
+                              'env': process['env'],
+                              'shell': true,
+                              'cwd': join(__dirname, 'nodemodules')
+                          });
+                          for (let i = 1; i <= 3; i++) {
+                              try {
+                                  require['cache'] = {};
+                                  if (listPackage.hasOwnProperty(reqDependencies) || listbuiltinModules.includes(reqDependencies)) global['nodemodule'][reqDependencies] = require(reqDependencies);
+                                  else global['nodemodule'][reqDependencies] = require(reqDependenciesPath);
+                                  check = true;
+                                  break;
+                              } catch (error) {
+                                  isError = error;
+                              }
+                              if (check || !isError) break;
+                          }
+                          if (!check || isError) throw global.getText('rxabdullah', 'cantInstallPackage', reqDependencies, module.config.name, isError);
+                      }
+                  }
+              }
+              if (module.config.envConfig) try {
+                  for (const envConfig in module.config.envConfig) {
+                      if (typeof global.configModule[module.config.name] == 'undefined') global.configModule[module.config.name] = {};
+                      if (typeof global.config[module.config.name] == 'undefined') global.config[module.config.name] = {};
+                      if (typeof global.config[module.config.name][envConfig] !== 'undefined') global['configModule'][module.config.name][envConfig] = global.config[module.config.name][envConfig];
+                      else global.configModule[module.config.name][envConfig] = module.config.envConfig[envConfig] || '';
+                      if (typeof global.config[module.config.name][envConfig] == 'undefined') global.config[module.config.name][envConfig] = module.config.envConfig[envConfig] || '';
+                  }
+              } catch (error) {
+                  throw new Error(global.getText('rxabdullah', 'loadedConfig', module.config.name, JSON.stringify(error)));
+              }
+              if (module.onLoad) {
+                  try {
+                      const moduleData = {};
+                      moduleData.api = loginApiData;
+                      moduleData.models = models;
+                      module.onLoad(moduleData);
+                  } catch (_0x20fd5f) {
+                      throw new Error(global.getText('rxabdullah', 'cantOnload', module.config.name, JSON.stringify(_0x20fd5f)), 'error');
+                  };
+              }
+              if (module.handleEvent) global.client.eventRegistered.push(module.config.name);
+              global.client.commands.set(module.config.name, module);
+          } catch (error) {
+              logger.loader(global.getText('rxabdullah', 'failLoadModule', module.config.name, error), 'error');
+          };
+      }
+  }(),
+  function() {
+      const events = readdirSync(global.client.mainPath + '/Script/events').filter(event => event.endsWith('.js') && !global.config.eventDisabled.includes(event));
+      for (const ev of events) {
+          try {
+              var event = require(global.client.mainPath + '/Script/events/' + ev);
+              if (!event.config || !event.run) throw new Error(global.getText('rxabdullah', 'errorFormat'));
+              if (global.client.events.has(event.config.name) || '') throw new Error(global.getText('rxabdullah', 'nameExist'));
+              if (event.config.dependencies && typeof event.config.dependencies == 'object') {
+                  for (const dependency in event.config.dependencies) {
+                      const _0x21abed = join(__dirname, 'nodemodules', 'node_modules', dependency);
+                      try {
+                          if (!global.nodemodule.hasOwnProperty(dependency)) {
+                              if (listPackage.hasOwnProperty(dependency) || listbuiltinModules.includes(dependency)) global.nodemodule[dependency] = require(dependency);
+                              else global.nodemodule[dependency] = require(_0x21abed);
+                          } else '';
+                      } catch {
+                          let check = false;
+                          let isError;
+                          logger.loader(global.getText('rxabdullah', 'notFoundPackage', dependency, event.config.name), 'warn');
+                          execSync('npm --package-lock false --save install' + dependency + (event.config.dependencies[dependency] == '*' || event.config.dependencies[dependency] == '' ? '' : '@' + event.config.dependencies[dependency]), {
+                              'stdio': 'inherit',
+                              'env': process['env'],
+                              'shell': true,
+                              'cwd': join(__dirname, 'nodemodules')
+                          });
+                          for (let i = 1; i <= 3; i++) {
+                              try {
+                                  require['cache'] = {};
+                                  if (global.nodemodule.includes(dependency)) break;
+                                  if (listPackage.hasOwnProperty(dependency) || listbuiltinModules.includes(dependency)) global.nodemodule[dependency] = require(dependency);
+                                  else global.nodemodule[dependency] = require(_0x21abed);
+                                  check = true;
+                                  break;
+                              } catch (error) {
+                                  isError = error;
+                              }
+                              if (check || !isError) break;
+                          }
+                          if (!check || isError) throw global.getText('rxabdullah', 'cantInstallPackage', dependency, event.config.name);
+                      }
+                  }
+              }
+              if (event.config.envConfig) try {
+                  for (const configevent in event.config.envConfig) {
+                      if (typeof global.configModule[event.config.name] == 'undefined') global.configModule[event.config.name] = {};
+                      if (typeof global.config[event.config.name] == 'undefined') global.config[event.config.name] = {};
+                      if (typeof global.config[event.config.name][configevent] !== 'undefined') global.configModule[event.config.name][configevent] = global.config[event.config.name][configevent];
+                      else global.configModule[event.config.name][configevent] = event.config.envConfig[configevent] || '';
+                      if (typeof global.config[event.config.name][configevent] == 'undefined') global.config[event.config.name][configevent] = event.config.envConfig[configevent] || '';
+                  }
+              } catch (error) {
+                  throw new Error(global.getText('rxabdullah', 'loadedConfig', event.config.name, JSON.stringify(error)));
+              }
+              if (event.onLoad) try {
+                  const eventData = {};
+                  eventData.api = loginApiData, eventData.models = models;
+                  event.onLoad(eventData);
+              } catch (error) {
+                  throw new Error(global.getText('rxabdullah', 'cantOnload', event.config.name, JSON.stringify(error)), 'error');
+              }
+              global.client.events.set(event.config.name, event);
+          } catch (error) {
+              logger.loader(global.getText('mirai', 'failLoadModule', event.config.name, error), 'error');
+          }
+      }
+  }()
+  console.log(chalk.bold(co(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`)));
+        logger.loader(`Commands Loaded: ${global.client.commands.size}`)
+        logger.loader(`Events Loaded: ${global.client.events.size}`)
+        logger.loader('Time start: ' + (Date.now() - global.client.timeStart) / 1000 + 's') 
+    writeFileSync(global.client.configPath,JSON.stringify(global.config, null, 4),'utf8');
+    const listenerData = { api: loginApiData, models: models }
+    const listener = require('./includes/listen')(listenerData)
+    async function listenerCallback(error, message) {
+      if (error) {
+        logger('Acc bị logout, đang tiến hành đăng nhập lại!', '[ LOGIN-ACCOUNT ]')
+        var _0x50d0db = await loginAppstate()
+        _0x50d0db
+        await new Promise((data) => setTimeout(data, 7000))
+        process.exit(1)
+      }
+      if (['presence', 'typ', 'read_receipt'].some((data) => data == message.type)) { return }
+      return listener(message)
+    }
+    var _0x27b45c = setInterval(function (_0x5e6185) {
+      uptime()
+      process.exit(1)
+    }, global.config.autoRestart)
+    _0x27b45c
+    global.handleListen = loginApiData.listenMqtt(listenerCallback)
+    global.client.api = loginApiData
+  })
 }
-//////////////////////////////////////////////
-//========= Connecting to Database =========//
-//////////////////////////////////////////////
-(async() => {
-  try {
-        await sequelize.authenticate();
-        const authentication = {};
-        authentication.Sequelize = Sequelize;
-        authentication.sequelize = sequelize;
-        const models = require('./includes/database/model')(authentication);
-        logger(global.getText('rxabdullah', 'successConnectDatabase'), '[ DATABASE ]');
-        const botData = {};
-        botData.models = models
-        onBot(botData);
-    } catch (error) { logger(global.getText('rxabdullah', 'successConnectDatabase', JSON.stringify(error)), '[ DATABASE ]'); }
-console.log(chalk.bold.hex("#eff1f0").bold("================== SUCCESFULLY ====================="));  
-})();
 
-process.on('unhandledRejection', (err, p) => {});
+(async () => {
+  try {
+    await sequelize.authenticate()
+    const authentication = { Sequelize, sequelize }
+    const models = require('./includes/database/model')(authentication)
+   logger(global.getText('rxabdullah', 'successConnectDatabase'), '[ DATABASE ]')
+    const botData = { models: models }
+    onBot(botData)
+  } catch (error) {
+    logger(global.getText('rxabdullah', 'successConnectDatabase', JSON.stringify(error)), '[ DATABASE ]')
+  }
+})()
+process.on('unhandledRejection', (err, p) => {}).on('uncaughtException', err => { console.log(err);
+});
