@@ -1,102 +1,72 @@
-module.exports.config = {
-    name: "approve",
-    version: "1.0.2",
-    hasPermssion: 2,
-    credits: "rX",
-    description: "Approve the GC using bot",
-    commandCategory: "Admin",
-    cooldowns: 5
-};
-
 const fs = require("fs");
-const dataPath = __dirname + "/rx/approvedThreads.json";
-const dataPending = __dirname + "/rx/pendingdThreads.json";
+const path = require("path");
 
-module.exports.onLoad = () => {
-    if (!fs.existsSync(dataPath)) fs.writeFileSync(dataPath, JSON.stringify([]));
-    if (!fs.existsSync(dataPending)) fs.writeFileSync(dataPending, JSON.stringify([]));
+module.exports.config = {
+  name: "approve",
+  version: "1.1",
+  hasPermssion: 1,
+  credits: "Rx Abdullah",
+  description: "Add group to thuebot.json with flexible period",
+  commandCategory: "Admin",
+  usages: "!group add <tid> <number+unit> (e.g., 2year, 10day, 6month)",
+  cooldowns: 5,
 };
 
-module.exports.handleReply = async function({ event, api, handleReply, args, Users }) {
-    if (handleReply.author != event.senderID) return;
-    const { body, threadID, messageID } = event;
-    let data = JSON.parse(fs.readFileSync(dataPath));
-    let dataP = JSON.parse(fs.readFileSync(dataPending));
-    let idBox = (args[0]) ? args[0] : threadID;
+module.exports.run = async ({ api, event, args }) => {
+  if (args.length < 2) return api.sendMessage("Usage: !group add <tid> <number+unit> (e.g., 2year, 10day, 6month)", event.threadID);
 
-    switch (handleReply.type) {
-        case "pending":
-            if (body.toUpperCase() === "A") {
-                if (!data.includes(idBox)) data.push(idBox);
-                fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
-                dataP.splice(dataP.indexOf(idBox), 1);
-                fs.writeFileSync(dataPending, JSON.stringify(dataP, null, 2));
-                api.sendMessage(`✅ Successfully approved the box:\n${idBox}`, threadID, messageID);
-            }
-            break;
-    }
-};
+  const tid = args[0];
+  const periodInput = args[1].toLowerCase();
 
-module.exports.run = async function({ event, api, args, Users }) {
-    const { threadID, messageID } = event;
-    let data = JSON.parse(fs.readFileSync(dataPath));
-    let dataP = JSON.parse(fs.readFileSync(dataPending));
-    let idBox = (args[0]) ? args[0] : threadID;
+  // Match number + unit
+  const match = periodInput.match(/^(\d+)(day|month|year)$/);
+  if (!match) return api.sendMessage("Invalid format! Example: 2year, 10day, 6month", event.threadID);
 
-    // LIST APPROVED
-    if (args[0] === "list" || args[0] === "l") {
-        let msg = `=====「 GC THAT HAD BEEN APPROVED: ${data.length} 」=====\n`;
-        let count = 0;
-        for (const e of data) {
-            const threadInfo = await api.getThreadInfo(e);
-            const threadName = threadInfo.threadName || await Users.getNameUser(e);
-            msg += `\n〘${++count}〙 » ${threadName}\n${e}`;
-        }
-        return api.sendMessage(msg, threadID, messageID);
-    }
+  const number = parseInt(match[1]);
+  const unit = match[2];
 
-    // LIST PENDING
-    if (args[0] === "pending" || args[0] === "p") {
-        let msg = `=====「 THREADS NEED TO BE APPROVE: ${dataP.length} 」=====\n`;
-        let count = 0;
-        for (const e of dataP) {
-            const threadInfo = await api.getThreadInfo(e);
-            const threadName = threadInfo.threadName || await Users.getNameUser(e);
-            msg += `\n〘${++count}〙 » ${threadName}\n${e}`;
-        }
-        return api.sendMessage(msg, threadID, messageID);
-    }
+  let startDate = new Date();
+  let endDate = new Date();
 
-    // DELETE APPROVED
-    if (args[0] === "del" || args[0] === "d") {
-        idBox = args[1] ? args[1] : threadID;
-        if (!data.includes(idBox)) return api.sendMessage("[ ERR ] Box is not pre-approved!", threadID, messageID);
-        data.splice(data.indexOf(idBox), 1);
-        fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
-        return api.sendMessage(`[ OK ] Box removed successfully:\n${idBox}`, threadID, messageID);
-    }
+  switch (unit) {
+    case "day":
+      endDate.setDate(endDate.getDate() + number);
+      break;
+    case "month":
+      endDate.setMonth(endDate.getMonth() + number);
+      break;
+    case "year":
+      endDate.setFullYear(endDate.getFullYear() + number);
+      break;
+  }
 
-    // APPROVE NEW GROUP
-    if (data.includes(idBox)) {
-        return api.sendMessage(`[ - ] ID ${idBox} is already pre-approved!`, threadID, messageID);
-    } else {
-        api.sendMessage({
-            body: `｡ﾟﾟ･｡･ﾟﾟ｡
-ﾟ。𝙂𝙧𝙤𝙪𝙥 𝙖𝙥𝙥𝙧𝙤𝙫𝙚𝙙✨
-　ﾟ･｡･тнαηкѕ ƒσя υѕιηg мαяια ν3❤ •˚⠀`
-        }, idBox, () => {
-            // Approved list update
-            data.push(idBox);
-            fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+  const formatDate = (d) => `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`;
 
-            // Remove from pending list
-            if (dataP.includes(idBox)) {
-                dataP.splice(dataP.indexOf(idBox), 1);
-                fs.writeFileSync(dataPending, JSON.stringify(dataP, null, 2));
-            }
+  const newEntry = {
+    t_id: tid,
+    user: "everyone",
+    time_start: formatDate(startDate),
+    time_end: formatDate(endDate)
+  };
 
-            // Change bot nickname
-            api.changeNickname(` ${(!global.config.BOTNAME) ? "" : global.config.BOTNAME}`, idBox, global.data.botID);
-        });
-    }
+  const filePath = path.join(__dirname, "data", "thuebot.json");
+
+  let data = [];
+  try {
+    data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  } catch (err) {
+    console.log("File not found or invalid JSON, creating new one.");
+  }
+
+  // Avoid duplicates
+  if (data.find(e => e.t_id === tid)) {
+    return api.sendMessage(`❌ Group ${tid} already exists!`, event.threadID);
+  }
+
+  data.push(newEntry);
+
+  // Save in single-line format
+  fs.writeFileSync(filePath, JSON.stringify(data), "utf-8");
+
+  api.sendMessage(`✅ Group ${tid} added! Period: ${number} ${unit}`, event.threadID);
 };
