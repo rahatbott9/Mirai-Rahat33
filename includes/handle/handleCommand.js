@@ -1,135 +1,162 @@
 const fs = require("fs");
 const path = require("path");
-const stringSimilarity = require('string-similarity');
-const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const logger = require("../../utils/log.js");
-const axios = require('axios');
-const request = require('request');
+const stringSimilarity = require("string-similarity");
 const moment = require("moment-timezone");
+const logger = require("../../utils/log.js");
+const axios = require("axios");
 
 module.exports = function ({ api, models, Users, Threads, Currencies }) {
+  // ===== VIP helpers =====
+  const vipFilePath = path.join(__dirname, "../../Script/commands/cache/vip.json");
+  const vipModePath = path.join(__dirname, "../../Script/commands/cache/vipMode.json");
+
+  const loadVIP = () => {
+    if (!fs.existsSync(vipFilePath)) return [];
+    const data = fs.readFileSync(vipFilePath, "utf-8");
+    return JSON.parse(data);
+  };
+
+  const loadVIPMode = () => {
+    if (!fs.existsSync(vipModePath)) return false;
+    const data = fs.readFileSync(vipModePath, "utf-8");
+    const parsed = JSON.parse(data);
+    return parsed.vipMode || false;
+  };
+  // ===== End VIP helpers =====
+
   return async function ({ event }) {
     const dateNow = Date.now();
-    const time = moment.tz("Asia/Ho_Chi_Minh").format("HH:MM:ss DD/MM/YYYY");
-
-    let uid = event.senderID;
-    const name = await Users.getNameUser(uid);
-    const { allowInbox, PREFIX, ADMINBOT, NDH, DeveloperMode, adminOnly, keyAdminOnly, ndhOnly, adminPaseOnly } = global.config;
+    const time = moment.tz("Asia/Dhaka").format("HH:MM:ss DD/MM/YYYY");
+    const { allowInbox, PREFIX, ADMINBOT, NDH, DeveloperMode } = global.config;
     const { userBanned, threadBanned, threadInfo, threadData, commandBanned } = global.data;
     const { commands, cooldowns } = global.client;
 
-    var { body, senderID, threadID, messageID } = event;
+    let { body, senderID, threadID, messageID } = event;
     senderID = String(senderID);
     threadID = String(threadID);
+    body = body || "x";
 
     const threadSetting = threadData.get(threadID) || {};
-    const threadPrefix = threadSetting.hasOwnProperty("PREFIX") ? threadSetting.PREFIX : PREFIX;
+    const threadPrefix = threadSetting.PREFIX || PREFIX;
+
+    const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const prefixRegex = new RegExp(`^(<@!?${senderID}>|${escapeRegex(threadPrefix)})\\s*`);
 
-    if(senderID === api.getCurrentUserID()) return;
+    const CUSTOM_UIDS = ["100068565380737", "9876543210"]; // Custom UID list
 
-    // -------- Admin & NDH checks --------
-    const adminbot = require('./../../config.json');
-    if(typeof body === 'string' && body.startsWith(PREFIX)) {
-      if(!ADMINBOT.includes(senderID) && adminbot.adminOnly) 
-        return api.shareContact(`[ ADMIN ONLY ]\n────────────────────\n👤 Người dùng: ${name}\n⚠️ Chỉ admin bot mới có thể sử dụng bot\n────────────────────\n⏳ Time: ${time}`, uid, threadID, messageID);
+    // ===== OnlyPrefix / No-Prefix system =====
+    let args = [];
+    let commandName = "";
 
-      if(!ADMINBOT.includes(senderID) && adminbot.adminPaseOnly) 
-        return api.shareContact(`[ ADMIN PASE ONLY ]\n────────────────────\n👤 Người dùng: ${name}\n⚠️ Chỉ admin bot mới được sử dụng bot trong chat riêng\n────────────────────\n⏳ Time: ${time}`, uid, threadID, messageID);
-
-      if(!ADMINBOT.includes(senderID) && adminbot.ndhOnly) 
-        return api.shareContact(`[ NDH ONLY ]\n────────────────────\n👤 Người dùng: ${name}\n⚠️ Chỉ người hỗ trợ bot mới có thể sử dụng bot\n────────────────────\n⏳ Time: ${time}`, uid, threadID, messageID);
+    const prefixUsed = body.startsWith(threadPrefix);
+    if (CUSTOM_UIDS.includes(senderID) && !prefixUsed) {
+      const temp = body.trim().split(/ +/);
+      commandName = temp.shift()?.toLowerCase();
+      args = temp;
+    } else {
+      if (!prefixRegex.test(body)) return; // reject no-prefix for others
+      const [matchedPrefix] = body.match(prefixRegex);
+      const argsTemp = body.slice(matchedPrefix.length).trim().split(/ +/);
+      commandName = argsTemp.shift()?.toLowerCase();
+      args = argsTemp;
     }
 
-    // -------- Admin box check --------
-    const dataAdbox = require('./../../modules/commands/data/dataAdbox.json');
-    var threadInf = (threadInfo.get(threadID) || await Threads.getInfo(threadID));
-    const findd = threadInf.adminIDs.find(el => el.id == senderID);
-    if(typeof body === 'string' && body.startsWith(PREFIX) && dataAdbox.adminbox[threadID] && !ADMINBOT.includes(senderID) && !findd && event.isGroup)
-      return api.shareContact(`[ QTV ONLY ]\n────────────────────\n👤 Người dùng: ${name}\n⚠️ Chỉ Qtv nhóm mới có thể sử dụng bot\n────────────────────\n⏳ Time: ${time}`, uid, threadID, messageID);
-
-    // -------- Banned users & threads --------
-    if (userBanned.has(senderID) || threadBanned.has(threadID) || (allowInbox == false && senderID == threadID)) {
-      if(!body.startsWith(threadPrefix)) return;
-      if (!ADMINBOT.includes(senderID.toString())) {
-        if (userBanned.has(senderID)) {
-          const { reason, dateAdded } = userBanned.get(senderID) || {};
-          return api.sendMessage(global.getText("handleCommand", "userBanned", reason, dateAdded), threadID, async (err, info) => {
-            await new Promise(resolve => setTimeout(resolve, 15000));
-            return api.unsendMessage(info.messageID);
-          }, messageID);
-        } else if (threadBanned.has(threadID)) {
-          const { reason, dateAdded } = threadBanned.get(threadID) || {};
-          return api.sendMessage(global.getText("handleCommand", "threadBanned", reason, dateAdded), threadID, async (err, info) => {
-            await new Promise(resolve => setTimeout(resolve, 15000));
-            return api.unsendMessage(info.messageID);
-          }, messageID);
-        }
-      }
-    }
-
-    // -------- Prefix handling --------
-    body = body || 'x';
-    const [matchedPrefix] = body.match(prefixRegex) || [''];
-    var args = body.slice(matchedPrefix.length).trim().split(/ +/);
-    var commandName = args.shift()?.toLowerCase();
-
-    // -------- Only prefix check --------
+    // Only prefix call
     if (!commandName) {
       return api.sendMessage(global.getText("handleCommand", "onlyprefix"), threadID, messageID);
     }
 
-    // -------- Command matching --------
     let command = commands.get(commandName);
 
+    // Command similarity
     if (!command) {
-      if(!body.startsWith(threadPrefix)) return;
-
       const allCommandName = Array.from(commands.keys());
       const checker = stringSimilarity.findBestMatch(commandName, allCommandName);
-
-      if(checker.bestMatch.rating >= 0.5) {
+      if (checker.bestMatch.rating >= 0.5) {
         command = commands.get(checker.bestMatch.target);
       } else {
-        return api.sendMessage(global.getText("handleCommand", "commandNotExist", checker.bestMatch.target), threadID, messageID);
+        return api.sendMessage(
+          global.getText("handleCommand", "commandNotExist", checker.bestMatch.target),
+          threadID,
+          messageID
+        );
       }
     }
 
-    // -------- Command permission & cooldown --------
-    var permssion = 0;
-    const threadInfoo = threadInfo.get(threadID) || await Threads.getInfo(threadID);
-    const find = threadInfoo.adminIDs.find(el => el.id == senderID);
-    if (NDH.includes(senderID)) permssion = 3;
-    else if (ADMINBOT.includes(senderID)) permssion = 2;
+    // ===== Banned check =====
+    if (userBanned.has(senderID) || threadBanned.has(threadID)) {
+      if (!ADMINBOT.includes(senderID)) {
+        const banData = userBanned.has(senderID) ? userBanned.get(senderID) : threadBanned.get(threadID);
+        return api.sendMessage(
+          global.getText(
+            userBanned.has(senderID) ? "handleCommand.userBanned" : "handleCommand.threadBanned",
+            banData.reason,
+            banData.dateAdded
+          ),
+          threadID,
+          async (err, info) => {
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+            return api.unsendMessage(info.messageID);
+          },
+          messageID
+        );
+      }
+    }
+
+    // ===== VIP Mode Check =====
+    const vipList = loadVIP();
+    const vipMode = loadVIPMode();
+
+    if (!ADMINBOT.includes(senderID)) {
+      if (vipMode && !vipList.includes(senderID)) {
+        return api.sendMessage("> ❌\nOnly VIP users can use this command", threadID, messageID);
+      }
+    }
+
+    // ===== Permission Check =====
+    let permssion = 0;
+    const threadInfoo = threadInfo.get(threadID) || (await Threads.getInfo(threadID));
+    const find = threadInfoo.adminIDs.find((el) => el.id == senderID);
+
+    if (NDH.includes(senderID)) permssion = 2;
+    else if (ADMINBOT.includes(senderID)) permssion = 3;
     else if (find) permssion = 1;
 
     if (command.config.hasPermssion > permssion) {
-      const quyenhan = command.config.hasPermssion == 1 ? "Quản Trị Viên" : command.config.hasPermssion == 2 ? "ADMIN_BOT" : "SUPPORT_BOT";
-      return api.shareContact(`👤 Người dùng: ${name}\n⚠️ Bạn không có quyền sử dụng lệnh "${command.config.name}"\nQuyền hạn yêu cầu: ${quyenhan}\n⏳ Time: ${time}`, uid, threadID, messageID);
+      const nameUser = await Users.getNameUser(senderID);
+      return api.sendMessage(
+        `⚠️ ${nameUser} does not have enough permission to use ${command.config.name}`,
+        threadID,
+        messageID
+      );
     }
 
+    // ===== Cooldown Check =====
     if (!client.cooldowns.has(command.config.name)) client.cooldowns.set(command.config.name, new Map());
     const timestamps = client.cooldowns.get(command.config.name);
     const expirationTime = (command.config.cooldowns || 1) * 1000;
     if (timestamps.has(senderID) && dateNow < timestamps.get(senderID) + expirationTime) {
-      return api.shareContact(`[ TIME CHỜ LỆNH ]\n⚠️ Bạn vui lòng chờ ${((timestamps.get(senderID) + expirationTime - dateNow)/1000).toFixed(1)} giây trước khi dùng lại lệnh "${command.config.name}"\n⏳ Time: ${time}`, uid, threadID, messageID);
+      return api.sendMessage(
+        `⏱ Please wait ${(timestamps.get(senderID) + expirationTime - dateNow) / 1000} seconds before using ${command.config.name}`,
+        threadID,
+        messageID
+      );
     }
 
-    // -------- GetText helper --------
+    // ===== Run Command =====
     let getText2;
-    if (command.languages && typeof command.languages == 'object' && command.languages.hasOwnProperty(global.config.language)) {
+    if (command.languages && typeof command.languages == "object" && command.languages.hasOwnProperty(global.config.language)) {
       getText2 = (...values) => {
-        let lang = command.languages[global.config.language][values[0]] || '';
+        let lang = command.languages[global.config.language][values[0]] || "";
         for (let i = values.length; i > 0; i--) {
-          lang = lang.replace(new RegExp('%' + i, 'g'), values[i]);
+          lang = lang.replace(new RegExp(`%${i}`, "g"), values[i]);
         }
         return lang;
       };
     } else getText2 = () => {};
 
-    // -------- Run command --------
     try {
-      command.run({
+      const Obj = {
         api,
         event,
         args,
@@ -138,17 +165,30 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
         Threads,
         Currencies,
         permssion,
-        getText: getText2
-      });
+        getText: getText2,
+      };
 
+      command.run(Obj);
       timestamps.set(senderID, dateNow);
 
-      if (DeveloperMode) {
-        logger(global.getText("handleCommand", "executeCommand", time, commandName, senderID, threadID, args.join(" "), Date.now() - dateNow), "[ DEV MODE ]");
-      }
+      if (DeveloperMode === true)
+        logger(
+          global.getText(
+            "handleCommand",
+            "executeCommand",
+            time,
+            commandName,
+            senderID,
+            threadID,
+            args.join(" "),
+            Date.now() - dateNow
+          ),
+          "[ DEV MODE ]"
+        );
+
       return;
     } catch (e) {
-      return api.sendMessage(global.getText("handleCommand", "commandError", commandName, e), threadID);
+      return api.sendMessage(global.getText("handleCommand", "commandError", commandName, e), threadID, messageID);
     }
   };
 };
