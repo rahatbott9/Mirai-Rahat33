@@ -1,32 +1,33 @@
 {
-  "name": "fca-horizon-remastered",
-  "version": "1.5.2",
-  "description": "Facebook-chat-api protect and deploy by Kanzu and HZI Team",
+  "name": "rx-maria",
+  "version": "3.0.0",
+  "description": "Project oF rX",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "mocha"
   },
-  "author": "Avery, David, Maude, Benjamin, UIRI, KanzuWakazaki",
+  "author": "rX",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/KanzuXHorizon/Fca-Horizon-Remastered/issues"
+    "url": "https://github.com/rxabdullah0007/rx-fca/issues"
   },
-  "homepage": "https://github.com/KanzuXHorizon/Fca-Horizon-Remastered#readme",
+  "homepage": "https://github.com/rxabdullah0007/rx-fca#readme",
   "repository": {
     "type": "git",
-    "url": "git://github.com/KanzuXHorizon/Fca-Horizon-Remastered.git"
+    "url": "https://github.com/rxabdullah0007/rx-fca.git"
   },
   "dependencies": {
     "aes-js": "latest",
     "ansi-to-html": "latest",
     "assert": "latest",
+    "better-sqlite3": "7.6.2",
     "bluebird": "latest",
     "chalk": "4.1.2",
     "cheerio": "1.0.0-rc.12",
     "crypto-js": "latest",
     "deasync": "^0.1.28",
     "duplexify": "^4.1.2",
-    "better-sqlite3": "^12.5.0",
     "encode32": "latest",
     "express": "latest",
     "figlet": "latest",
@@ -52,7 +53,7 @@
     "ws": "^8.13.0"
   },
   "engines": {
-    "node": ">=14.x"
+    "node": ">=18.x"
   },
   "devDependencies": {
     "eslint": "^8.40.0",
@@ -69,26 +70,15 @@
       "sourceType": "module"
     },
     "rules": {
-      "linebreak-style": [
-        "error",
-        "unix"
-      ],
-      "semi": [
-        "error",
-        "always"
-      ],
-      "no-unused-vars": [
-        1,
-        {
-          "argsIgnorePattern": "^_"
-        }
-      ]
+      "linebreak-style": ["error", "unix"],
+      "semi": ["error", "always"],
+      "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
     }
   },
   "keywords": [
-    "Fca horizon",
-    "fca-horizon-remastered",
-    "horizon fca",
-    "horizon"
+    "Fca rX",
+    "maria-fca",
+    "rXdeV",
+    "fca-maria"
   ]
 }
