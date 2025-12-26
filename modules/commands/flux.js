@@ -12,7 +12,7 @@ module.exports.config = {
 };
 
 module.exports.run = async ({ event, args, api }) => {
- const dipto = "https://www.noobs-api.rf.gd/dipto";
+ const dipto = "https://api.noobs-api.rf.gd/dipto";
 
  try {
  const prompt = args.join(" ");
