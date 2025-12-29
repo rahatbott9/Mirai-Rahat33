@@ -1,8 +1,8 @@
 module.exports.config = {
- name: "antijoin",
+ name: "protect3",
  eventType: ["log:subscribe"],
  version: "1.0.0",
- credits: "rX",
+ credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
  description: "Welcome new members to the group"
 };
 
@@ -20,6 +20,6 @@ module.exports.run = async function ({ event, api, Threads, Users }) {
                               global.data.threadData.set(event.threadID, data);
                     })
 			}
- 	return api.sendMessage(`» Your team now has Anti Join mode turned on, please turn it off before adding a new 👻 member`, event.threadID);
+ 	return api.sendMessage(`🚫You can not add a member\ntype protect3 off`, event.threadID);
  }
 }
