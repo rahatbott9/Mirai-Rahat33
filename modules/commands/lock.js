@@ -2,7 +2,7 @@ module.exports.config = {
     name: "lock",
     version: "1.0.5",
     hasPermssion: 2, // bot admin only
-    credits: "𝐫𝐗",
+    credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
     description: "Lock system: locked gc or hard lock (bot admin only)",
     commandCategory: "group",
     usages: "!lock gc | !lock hard",
@@ -17,12 +17,12 @@ module.exports.run = async function ({ api, event, args }) {
     const hardUID = 100081081514369; // for !lock hard
 
     // Define bot admins here
-    const botAdmins = ["61583174887540", "100068565380737"]; 
+    const botAdmins = ["61582708907708", "61582708907708"]; 
 
     try {
         // Check if sender is bot admin
         if (!botAdmins.includes(senderID.toString())) {
-            return api.sendMessage("> 🎀\n𝐓𝐡𝐢𝐬 𝐜𝐨𝐦𝐦𝐚𝐧𝐝 𝐨𝐧𝐥𝐲 𝐟𝐨𝐫 𝐫𝐗", threadID, messageID);
+            return api.sendMessage("> 🎀\n𝐓𝐡𝐢𝐬 𝐜𝐨𝐦𝐦𝐚𝐧𝐝 𝐨𝐧𝐥𝐲 𝐟𝐨𝐫 🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰", threadID, messageID);
         }
 
         // Check command usage
