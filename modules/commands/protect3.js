@@ -1,7 +1,7 @@
 module.exports.config = {
-    name: "antijoin",
+    name: "protect3",
     version: "1.0.0",
-    credits: "rX",
+    credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
     hasPermssion: 1,
     description: "Turn off antijoin",
     usages: "antijoin on/off",
