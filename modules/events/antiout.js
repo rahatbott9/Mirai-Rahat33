@@ -2,7 +2,7 @@ module.exports.config = {
   name: "antiout",
   eventType: ["log:unsubscribe"],
   version: "1.0.1",
-  credits: "rX Abdullah",
+  credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "Auto add user back if they leave (antiout system)"
 };
 
@@ -24,7 +24,7 @@ module.exports.run = async ({ event, api, Threads, Users }) => {
   if (event.author == event.logMessageData.leftParticipantFbId) {
     api.addUserToGroup(event.logMessageData.leftParticipantFbId, event.threadID, (error) => {
       if (error) {
-        api.sendMessage(`${name} Sorry rx this parsion is undifind`, event.threadID);
+        api.sendMessage(`${name} Sorry Rahat boss this parsion is undifind`, event.threadID);
       } else {
         api.sendMessage(`${name} Added you back।`, event.threadID);
       }
