@@ -1,7 +1,7 @@
 module.exports.config = {
   name: "userinfo",
   version: "2.1.0",
-  credits: "rX",
+  credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "User ID Card with Gender & Birthday Fix",
   commandCategory: "info",
   usages: "[reply / mention / uid]",
@@ -94,7 +94,7 @@ module.exports.run = async function ({ api, event, args }) {
     ctx.stroke();
 
     ctx.font = "18px Sans";
-    ctx.fillText("Powered by Maria v3", 520, 400);
+    ctx.fillText("Powered by Rahat Isalm", 520, 400);
 
     // save
     const imgPath = path.join(__dirname, "cache", `userid_${uid}.png`);
