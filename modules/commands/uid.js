@@ -2,7 +2,7 @@ module.exports.config = {
 	name: "uid",
 	version: "1.2.0",
 	hasPermssion: 0,
-	credits: "rX",
+	credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
 	description: "Get User ID.",
 	commandCategory: "Tools",
 	cooldowns: 5
