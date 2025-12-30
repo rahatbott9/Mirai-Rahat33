@@ -4,7 +4,7 @@ module.exports.config = {
   name: "needgf",
   version: "3.0.1",
   hasPermssion: 0,
-  credits: "rX Abdullah",
+  credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "Send random gf link with preview",
   commandCategory: "fun",
   usages: "",
