@@ -6,7 +6,7 @@ module.exports.config = {
   name: "themeapply",
   version: "2.0.0",
   hasPermssion: 0,
-  credits: "rX Abdullah",
+  credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "Show available themes with preview and apply by FBID",
   commandCategory: "system",
   usages: "[themeID]",
