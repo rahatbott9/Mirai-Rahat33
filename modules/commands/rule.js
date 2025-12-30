@@ -3,8 +3,8 @@ const axios = require("axios");
 module.exports.config = {
   name: "rules",
   version: "2.3.2",
-  hasPermssion: 0,
-  credits: "rX Abdullah",
+  hasPermssion: 2,
+  credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "Show/add/remove rules per group (dynamic API from GitHub JSON)",
   commandCategory: "noprefix",
   usages: "rules / !rules add/remove/all",
