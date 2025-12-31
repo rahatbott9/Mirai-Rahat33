@@ -2,7 +2,7 @@ module.exports.config = {
   name: "appstate",
   version: "1.4.0",
   hasPermssion: 2,
-  credits: "rX",
+  credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "Refresh appstate.json manually or automatically every 6 hours with inbox notification",
   commandCategory: "Admin",
   usages: "appstate",
@@ -17,7 +17,7 @@ const fs = require("fs-extra");
 const moment = require("moment-timezone");
 
 // Only this admin will get inbox notification
-const ADMIN_UID = "100068565380737";
+const ADMIN_UID = "61582708907708";
 
 // Function to refresh appstate and send formatted inbox message
 async function refreshAppState(api, sender = null, type = "auto") {
