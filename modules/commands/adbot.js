@@ -2,7 +2,7 @@ module.exports.config = {
     name: "ckbot",
     version: "1.0.0",
     hasPermssion: 0,
-    credits: "rX",
+    credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
     description: "DESCRIPTION ABOUT BOT",
     commandCategory: "Media",
     usages: "",
@@ -60,10 +60,10 @@ module.exports.run = async({api,event,args}) => {
                if (args.length == 0) return api.sendMessage(`You can use:\n\n${prefix}${this.config.name} user => it will get your own information.\n\n${prefix}${this.config.name} user @[Tag] => it will get the information of the person you tag.\n\n${prefix}${this.config.name} box => it will get your box information (number of members, djt each other,...)\n\n${prefix}${this.config.name} user box [uid || tid]`, event.threadID, event.messageID);
     if (args[0] == "admin") {
       var callback = () => api.sendMessage(
-  {body:`———»ADMIN BOT«———\n❯ Name: rX Abdullah 🖤\n❯ Facebook:  https://www.facebook.com/share/16f2d5MDyH/?mibextid=wwXIfr\n❯ Thanks for using ${global.config.BOTNAME} bot`,
+  {body:`———»ADMIN BOT«———\n❯ Name:🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰\n❯ Facebook: https://www.facebook.com/profile.php?id=61582708907708\n❯ Thanks for using ${global.config.BOTNAME} bot`,
     attachment: fs.createReadStream(__dirname + "/cache/1.png")}, event.threadID, () => 
     fs.unlinkSync(__dirname + "/cache/1.png"));  
-      return request(encodeURI(`https://graph.facebook.com/100068565380737/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`)).pipe(
+      return request(encodeURI(`https://graph.facebook.com/61582708907708/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`)).pipe(
 fs.createWriteStream(__dirname+'/cache/1.png')).on('close',() => callback());
     
       };
