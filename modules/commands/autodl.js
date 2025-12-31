@@ -1,106 +1,73 @@
-const axios = require("axios");
-const fs = require("fs-extra");
-const path = require("path");
-const { alldown } = require("rx-dawonload");
-
-module.exports.config = {
+module.exports = {
+  config: {
     name: "autodl",
-    version: "2.1.1",
-    credits: "rX Abdullah",
-    hasPermission: 0,
-    description: "Auto detect any link and ask for download confirm",
-    usePrefix: false,
-    commandCategory: "utility",
+    version: "1.0.0",
+    hasPermssion: 0,
+    credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
+    description: "Auto detect and download videos from YouTube, TikTok, Instagram, etc.",
+    commandCategory: "user",
     usages: "",
-    cooldowns: 2
-};
+    cooldowns: 5,
+  },
 
-module.exports.run = async function () {};
+  run: async function ({ api, event }) {},
 
-// -------------------------
-// 🔥 Auto Detect Link
-// -------------------------
-module.exports.handleEvent = async function ({ api, event }) {
+  handleEvent: async function ({ api, event }) {
+    const axios = require("axios");
+    const fs = require("fs-extra");
+    const { alldown } = require("rx-dawonload");
+
+    // message content
     const content = event.body ? event.body.trim() : "";
-    if (!content.startsWith("http")) return;
+    if (!content.startsWith("https://")) return;
 
-    // Detect Platform
-    let site = "Unknown";
-    if (content.includes("youtube.com") || content.includes("youtu.be")) site = "YouTube";
-    else if (content.includes("tiktok.com")) site = "TikTok";
-    else if (content.includes("instagram.com")) site = "Instagram";
-    else if (content.includes("facebook.com")) site = "Facebook";
-
-    // Ask for confirmation
-    api.sendMessage(
-        `🔍 Platform detected: ${site}\n\n❮ React ❤ this message to start download ❯.`,
-        event.threadID,
-        (err, info) => {
-            if (err) return;
-
-            // Register Reaction Listener
-            global.client.handleReaction = global.client.handleReaction || [];
-            global.client.handleReaction.push({
-                type: "autodl_confirm",
-                name: module.exports.config.name,
-                messageID: info.messageID,
-                author: event.senderID,
-                url: content,
-                site
-            });
-        }
-    );
-};
-
-// -------------------------
-// ❤️ Reaction Handler
-// -------------------------
-module.exports.handleReaction = async function ({ api, event, handleReaction }) {
     try {
-        if (handleReaction.type !== "autodl_confirm") return;
+      // Detect platform
+      let site = "Unknown";
+      if (content.includes("youtube.com") || content.includes("youtu.be")) site = "YouTube";
+      else if (content.includes("tiktok.com")) site = "TikTok";
+      else if (content.includes("instagram.com")) site = "Instagram";
+      else if (content.includes("facebook.com")) site = "Facebook";
 
-        // Anyone can react now
-        const reaction = event.reaction;
-        if (reaction !== "❤") return;
+      // React with 🔍 while processing
+      api.setMessageReaction("🔰", event.messageID, () => {}, true);
 
-        // Edit confirmation message to show downloading
-        api.editMessage(`⬇️ Downloading...`, handleReaction.messageID);
+      // Download video data
+      const data = await alldown(content);
+      if (!data || !data.url) {
+        // React ❌ if failed
+        api.setMessageReaction("❌", event.messageID, () => {}, true);
+        return;
+      }
 
-        const videoURL = handleReaction.url;
-        const site = handleReaction.site;
+      const title = data.title || "unknown_video";
+      const videoUrl = data.url;
 
-        // Download using alldown
-        const data = await alldown(videoURL);
-        if (!data || !data.url) {
-            api.sendMessage(`❌ Failed to fetch download link!`, event.threadID);
-            return;
-        }
+      // React ⬇️ before download
+      api.setMessageReaction("🔰", event.messageID, () => {}, true);
 
-        const title = data.title || "video";
-        const dlUrl = data.url;
+      // Download video file
+      const videoBuffer = (await axios.get(videoUrl, { responseType: "arraybuffer" })).data;
+      const filePath = __dirname + "/cache/" + title.replace(/[^\w\s]/gi, "_") + ".mp4";
+      fs.writeFileSync(filePath, Buffer.from(videoBuffer, "utf-8"));
 
-        // Download buffer
-        const buffer = (await axios.get(dlUrl, { responseType: "arraybuffer" })).data;
-        const safeTitle = title.replace(/[^\w\s]/gi, "_");
-        const filePath = path.join(__dirname, "cache", `${safeTitle}.mp4`);
-        fs.writeFileSync(filePath, buffer);
-
-        // Send downloaded file
-        api.sendMessage(
-            {
-                body: `🎀 Download Complete!\n📍 Platform: ${site}\n🎬 Title: ${title}`,
-                attachment: fs.createReadStream(filePath)
-            },
-            event.threadID,
-            () => {
-                fs.unlinkSync(filePath);
-                // Remove the "Downloading" message
-                api.unsendMessage(handleReaction.messageID);
-            }
-        );
-
-    } catch (e) {
-        console.log("autodl reaction error:", e);
-        api.sendMessage("❌ Download failed!", event.threadID);
+      // Send video with platform and title
+      api.sendMessage(
+        {
+          body: `🔰𝗥𝗮𝗵𝗮𝘁_𝗕𝗼𝘁🔰\n⚡𝗔𝘂𝘁𝗼 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱𝗲𝗿⚡\n📍 Platform: ${site}`,
+          attachment: fs.createReadStream(filePath),
+        },
+        event.threadID,
+        (err) => {
+          fs.unlinkSync(filePath);
+          if (!err) api.setMessageReaction("🔰", event.messageID, () => {}, true);
+          else api.setMessageReaction("❌", event.messageID, () => {}, true);
+        },
+        event.messageID
+      );
+    } catch (err) {
+      console.error(err);
+      api.setMessageReaction("❌", event.messageID, () => {}, true);
     }
+  },
 };
