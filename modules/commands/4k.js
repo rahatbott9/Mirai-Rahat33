@@ -5,7 +5,7 @@ const path = require('path');
 module.exports.config = {
     name: "4k",
     version: "1.0",
-    credits: "rX Abdullah",
+    credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
     description: "Upscale image to 4K using API",
     usages: "!4k (reply to a photo)",
     commandCategory: "AI",
@@ -65,7 +65,7 @@ module.exports.run = async function ({ api, event, args }) {
 
         return api.sendMessage(
             {
-                body: `> 🎀 𝐃𝐨𝐧𝐞 𝐛𝐚𝐛𝐲`,
+                body: `🤷𝐃𝐨𝐧𝐞 𝐛𝐚𝐛𝐲`,
                 attachment: fs.createReadStream(tempFile)
             },
             event.threadID,
