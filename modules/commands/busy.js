@@ -2,7 +2,7 @@ module.exports.config = {
 	name: "busy",
 	version: "1.0.0",
 	permissions: 1,
-	credits: "rX",
+	credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
 	description: "Turn on or off busy mode",
   	usages: "[reason]",
   	commandCategory: "utility",
@@ -23,8 +23,8 @@ module.exports.handleEvent = async function({ api, event, Users }) {
         var info = busyData[senderID];
         delete busyData[senderID];
         fs.writeFileSync(busyPath, JSON.stringify(busyData, null, 4));
-        return api.sendMessage(`🎀─── [NOTIFICATION] ───🎀\n\n『 𝐌𝐀𝐑𝐈𝐀 』 - Welcome back, Master 🥰\n\n🎀───── •🌸• ─────🎀`, threadID, () => {
-            if (info.tag.length == 0) api.sendMessage("『 𝐌𝐀𝐑𝐈𝐀 』 - While Master was away, nobody mentioned you ❤️", threadID);
+        return api.sendMessage(`『𝗡𝗼𝘁𝗶𝗳𝗶𝗰𝗮𝘁𝗶𝗼𝗻』- বস অনলাইনে এসেছে🥰`, threadID, () => {
+            if (info.tag.length == 0) api.sendMessage("『𝗡𝗼𝘁𝗶𝗳𝗶𝗰𝗮𝘁𝗶𝗼𝗻』- বস অফলাইনে গেছে🫠", threadID);
             else {
                 var msg = "";
                 for (var i of info.tag) {
