@@ -1,7 +1,7 @@
 module.exports.config = {
   name: "color",
   version: "1.0.0",
-  credits: "rX Abdullah",
+  credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "Change thread color directly",
   commandCategory: "utility",
   usages: "[colorName]",
