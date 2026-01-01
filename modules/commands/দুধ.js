@@ -3,10 +3,10 @@ const fs = require("fs");
 const axios = require("axios");
 
 module.exports.config = {
-  name: "boobs",
+  name: "দুধ",
   version: "1.0.0",
   hasPermssion: 2,
-  credits: "Kaneki",
+  credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "Squeeze the breast of the tagged user",
   commandCategory: "18+ Command",
   usages: "[tag]",
