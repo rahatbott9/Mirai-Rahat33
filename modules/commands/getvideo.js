@@ -17,7 +17,7 @@ module.exports.config = {
   name: "getvideo",
   version: "1.0.0",
   hasPermssion: 0,
-  credits: "rX Abdullah",
+  credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "Send random pixeldrain video",
   commandCategory: "media",
   usages: "",
