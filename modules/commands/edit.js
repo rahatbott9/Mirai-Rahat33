@@ -6,7 +6,7 @@ module.exports.config = {
   name: "edit",
   version: "1.0.3",
   hasPermssion: 0,
-  credits: "rX",
+  credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "Edit image using NanoBanana API",
   commandCategory: "AI",
   usages: "<text> (reply to an image)",
@@ -72,11 +72,11 @@ module.exports.run = async function ({ api, event, args }) {
     const filePath = path.join(cacheDir, `${Date.now()}.png`);
     fs.writeFileSync(filePath, Buffer.from(imageData.data));
 
-    api.setMessageReaction("🧃", event.messageID, () => {}, true);
+    api.setMessageReaction("🔰", event.messageID, () => {}, true);
 
     api.sendMessage(
       {
-        body: "> 🎀 𝐃𝐨𝐧𝐞",
+        body: "✅𝐃𝐨𝐧𝐞",
         attachment: fs.createReadStream(filePath)
       },
       event.threadID,
