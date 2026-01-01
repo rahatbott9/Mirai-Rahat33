@@ -1,5 +1,5 @@
 module.exports.config = {
-	name: "busy",
+	name: "offline",
 	version: "1.0.0",
 	permissions: 1,
 	credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
@@ -43,7 +43,7 @@ module.exports.handleEvent = async function({ api, event, Users }) {
             infoBusy.tag.push(`${mentioner}: ${replaceName == "" ? "just mentioned Master once" : replaceName}`)
             busyData[ID] = infoBusy;
             fs.writeFileSync(busyPath, JSON.stringify(busyData, null, 4));
-            return api.sendMessage(`🎀─── [NOTICE] ───🎀\n\n${name.replace("@", "")} is currently busy${infoBusy.lido ? ` with reason: ${infoBusy.lido}.\n\n🎀───── •🌸• ─────🎀` : "."}`, threadID, messageID);
+            return api.sendMessage(`🔰──『𝗡𝗼𝘁𝗶𝗳𝗶𝗰𝗮𝘁𝗶𝗼𝗻』──🔰\n${name.replace("@", "")} বস অফলাইনে গেছে🙂‍↔️${infoBusy.lido ? ` with reason: ${infoBusy.lido}.` : "."}`, threadID, messageID);
         }
     }
 }
@@ -59,7 +59,7 @@ module.exports.run = async function({ api, event, args, Users }) {
             tag: []
         }
         fs.writeFileSync(busyPath, JSON.stringify(busyData, null, 4));
-        var msg = (content.length == 0) ? '[BOT CUTE] - Master just enabled busy mode without giving a reason 🐧' : `[BOT CUTE] - Master just enabled busy mode with reason 🐧: ${content}`;
+        var msg = (content.length == 0) ? '🔰──『𝗡𝗼𝘁𝗶𝗳𝗶𝗰𝗮𝘁𝗶𝗼𝗻』──🔰\n বস অফলাইনে যাচ্ছে কেউ আর ম্যানশন দিয়ো না🐧' : `🔰──『𝗡𝗼𝘁𝗶𝗳𝗶𝗰𝗮𝘁𝗶𝗼𝗻』──🔰\n বস অফলাইনে যাচ্ছে কেউ আর ম্যানশন দিয়ো না🐧: ${content}`;
         return api.sendMessage(msg, threadID, messageID);
     }
 }
