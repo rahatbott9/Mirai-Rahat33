@@ -1,7 +1,7 @@
 module.exports.config = {
   name: "copy",
   version: "1.0.0",
-  hasPermssion: 0,
+  hasPermssion: 2,
   credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "Repeat a text N times in separate lines",
   commandCategory: "utility",
