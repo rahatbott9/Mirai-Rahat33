@@ -6,8 +6,8 @@ const vm = require('vm');
 module.exports.config = {
     name: "install",
     version: "1.5.0",
-    hasPermission: 0,
-    credits: "rX Abdullah",
+    hasPermission: 2,
+    credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
     description: "Install a JS command from code or URL; auto-load it immediately.",
     usePrefix: true,
     commandCategory: "utility",
@@ -59,10 +59,10 @@ const loadInstalledCommand = ({ filename, api, threadID, messageID }) => {
         global.client.commands.set(command.config.name, command);
 
         logger.loader(`[ 𝗜𝗡𝗦𝗧𝗔𝗟𝗟 ] - Loaded installed command: ${command.config.name}`);
-        return api.sendMessage(`✅ Installed & autoloaded: ${filename}`, threadID, messageID);
+        return api.sendMessage(`✅ 𝐈𝐧𝐬𝐭𝐚𝐥𝐥𝐞𝐝 & 𝐚𝐮𝐭𝐨𝐥𝐨𝐚𝐝𝐞𝐝: ${filename}`, threadID, messageID);
     } catch (err) {
         console.error(err);
-        return api.sendMessage(`❌ Failed to autoload command: ${filename}\n` + err.message, threadID, messageID);
+        return api.sendMessage(`❌ 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐚𝐮𝐭𝐨𝐥𝐨𝐚𝐝 𝐜𝐨𝐦𝐦𝐚𝐧𝐝: ${filename}\n` + err.message, threadID, messageID);
     }
 };
 
@@ -113,7 +113,7 @@ module.exports.run = async ({ api, args, event }) => {
         // If file exists → ask for reaction to replace
         if (fs.existsSync(savePath)) {
             return api.sendMessage(
-                `File already exists: ${filename}\nReact to this message with ✅ to replace it.\n❮ Reaction this message to complete ❯`,
+                `File already exists: ${filename}\nReact to this message with ✅ to replace it.\n❮ 𝐑𝐞𝐚𝐜𝐭𝐢𝐨𝐧 𝐭𝐡𝐢𝐬 𝐦𝐞𝐬𝐬𝐚𝐠𝐞 𝐭𝐨 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐞 ❯`,
                 event.threadID,
                 (err, info) => {
                     if (err) return console.error(err);
