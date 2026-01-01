@@ -1,7 +1,7 @@
 module.exports.config = {
 	name: "offline",
 	version: "1.0.0",
-	permissions: 1,
+	permissions: 2,
 	credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
 	description: "Turn on or off busy mode",
   	usages: "[reason]",
