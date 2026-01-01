@@ -11,7 +11,7 @@ module.exports.config = {
  name: "fbcover",
  version: "2.9.2",
  hasPermssion: 0,
- credits: "rX",
+ credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
  description: "Facebook cover",
  usePrefix: true,
  prefix: true,
@@ -45,7 +45,7 @@ module.exports.run = async function ({ api, event, args, Users }) {
  const phone = msg[5].trim() || " ";
  const color = msg[6].trim() || "white";
  api.sendMessage(
- `> 🎀 𝐩𝐥𝐞𝐚𝐬𝐞 𝐰𝐚𝐢𝐭 `,
+ `𝐩𝐥𝐞𝐚𝐬𝐞 𝐰𝐚𝐢𝐭.....`,
  event.threadID,
  (err, info) =>
  setTimeout(() => {
