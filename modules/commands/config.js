@@ -2,7 +2,7 @@ module.exports.config = {
 	name: "config",
 	version: "1.0.0",
 	hasPermssion: 2,
-	credits: "rX",
+	credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
 	description: "config bot!",
 	commandCategory: "admin",
 	cooldowns: 5
@@ -816,7 +816,7 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
 module.exports.run = async ({ event, api }) => {
   const { threadID, messageID, senderID } = event;
   
-  api.sendMessage("⚙️⚙️rX 𝗰𝗵𝗮𝘁 𝗯𝗼𝘁 Command List ⚙️⚙️"
+  api.sendMessage("⚙️𝐑𝐀𝐇𝐀𝐓 𝐁𝐎𝐓 𝗖𝗺𝗱 𝗟𝗶𝘀𝘁⚙️"
      + "\n[01] Edit bot bio"
      + "\n[02] Edit bot nicknames"
      + "\n[03] View pending messages"
