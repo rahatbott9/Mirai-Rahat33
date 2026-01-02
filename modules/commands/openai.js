@@ -4,7 +4,7 @@ module.exports.config = {
   name: "openai",
   version: "3.0.4",
   hasPermssion: 0,
-  credits: "Rx Abdullah",
+  credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "ChatGPT-3.5 power by rX",
   commandCategory: "AI",
   cooldowns: 3,
