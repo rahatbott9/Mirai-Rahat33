@@ -2,7 +2,7 @@ module.exports.config = {
 	name: "load",
 	version: "2.0.0",
 	hasPermssion: 2,
-	credits: "rX",
+	credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
 	description: "reload config file data",
 	commandCategory: "Admin",
 	usages: "[]",
@@ -11,5 +11,5 @@ module.exports.config = {
 module.exports.run = async function({ api, event, args,Threads, Users }) {
 delete require.cache[require.resolve(global.client.configPath)];
 global.config = require(global.client.configPath);
-return api.sendMessage("> 🎀 Reloading config...", event.threadID, event.messageID);    
+return api.sendMessage("⏳𝗥𝗲𝗹𝗼𝗮𝗱𝗶𝗻𝗴 𝗰𝗼𝗻𝗳𝗶𝗴...", event.threadID, event.messageID);    
 } 
