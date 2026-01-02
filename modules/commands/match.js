@@ -2,7 +2,7 @@ module.exports.config = {
   name: "match",
   version: "1.0.3",
   hasPermssion: 0,
-  credits: "rX Abdullah",
+  credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "Match yourself with a tagged or replied user",
   commandCategory: "Picture",
   cooldowns: 5,
@@ -70,7 +70,7 @@ module.exports.run = async function ({ api, event }) {
   const { threadID, messageID, senderID, mentions, type, messageReply } = event;
 
   if (global.creditChanged) {
-    api.sendMessage("⚡️ Credit was changed respect rX Abdullah", threadID);
+    api.sendMessage("🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰", threadID);
     global.creditChanged = false;
   }
 
