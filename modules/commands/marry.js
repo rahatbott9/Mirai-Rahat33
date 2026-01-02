@@ -2,7 +2,7 @@ module.exports.config = {
     name: "marry",
     version: "2.0.0",
     hasPermssion: 0,
-    credits: "𝐂𝐘𝐁𝐄𝐑 ☢️_𖣘 -𝐁𝐎𝐓 ⚠️ 𝑻𝑬𝑨𝑴_ ☢️",
+    credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
     description: "Get married",
     commandCategory: "Love",
     usages: "[tag]",
@@ -66,9 +66,9 @@ module.exports.run = async function ({ event, api, args }) {
     const fs = global.nodemodule["fs-extra"];
     const { threadID, messageID, senderID } = event;
     const mention = Object.keys(event.mentions);
-    if (!mention[0]) return api.sendMessage("Vui lòng tag 1 người.", threadID, messageID);
+    if (!mention[0]) return api.sendMessage("❌তোমার বউ কে ম্যানশন দাও", threadID, messageID);
     else {
         const one = senderID, two = mention[0];
-        return makeImage({ one, two }).then(path => api.sendMessage({ body: "Bae please give me a chance to be with you for the rest of my life\nI love you so much 💟💟", attachment: fs.createReadStream(path) }, threadID, () => fs.unlinkSync(path), messageID));
+        return makeImage({ one, two }).then(path => api.sendMessage({ body: "অবশেষে তোমরা দুইজন বিয়েটা করেই ফেললে🥺🫤", attachment: fs.createReadStream(path) }, threadID, () => fs.unlinkSync(path), messageID));
     }
 }
