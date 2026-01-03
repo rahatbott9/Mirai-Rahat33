@@ -2,7 +2,7 @@ module.exports.config = {
  name: "imgur",
  version: "2.7.0", 
  hasPermssion: 0,
- credits: "rX",
+ credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
  description: "create your imgur link",
  commandCategory: "other", 
  usages: "[tag]", 
