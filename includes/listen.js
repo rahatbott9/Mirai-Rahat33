@@ -384,7 +384,7 @@ api.sendMessage(`⚠️ Auto-add mode triggered when a user leaves the group\n�
      };
      let find_thuebot = thuebot.find($ => $.t_id == event.threadID);
      if (((global.data.threadData.get(event.threadID)?.PREFIX || global.config.PREFIX) + 'callad') != event.args[0]) {
-        if (!find_thuebot) return api.shareContact(`${name}, এই গ্রুপে এখনো আমাকে approved করা হয়নি😔\nএরজন্য কোন কমান্ড ব্যবহার করতে পারবেন না`, global.config.NDH[0], event.threadID);
+        if (!find_thuebot) return api.shareContact(`${name},এই গ্রুপে এখনো আমাকে approved করা হয়নি\nএরজন্য কোন কমান্ড ব্যবহার করতে পারবেন না😔`, global.config.NDH[0], event.threadID);
         if (new Date(form_mm_dd_yyyy(find_thuebot.time_end)).getTime() <= Date.now()) return api.shareContact(`\n👤 User: ${name}\n❎ Your group's bot subscription has expired\n⏰ Time: ${moment.tz("Asia/Dhaka").format("DD/MM/YYYY || HH:mm:ss")}`, global.config.NDH[0], event.threadID);
      };
   };
