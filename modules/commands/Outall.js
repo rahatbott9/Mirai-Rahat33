@@ -5,6 +5,7 @@ module.exports.config = {
 	credits: "🔰Rahat🔰",
 	description: "Send messages to groups!",
 	commandCategory: "Admin",
+	usePrefix: true,
 	usages: "sendnoti [Text]",
 	cooldowns: 5,
 	info: [
